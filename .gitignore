@@ -1,0 +1,4 @@
+.pre-commit-config.yaml
+requirements.txt
+__pycache__/*
+config/*
