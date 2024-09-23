@@ -4,6 +4,9 @@ import json
 import logging
 from botocore.exceptions import ClientError
 
+logging.basicConfig(filename="log.log",format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 class SnsWrapper:
     """Encapsulates Amazon SNS topic and subscription functions."""
 
@@ -24,9 +27,9 @@ class SnsWrapper:
         try:
             topic = self.sns_resource.create_topic(Name=name)
   
-            logging.info("Created topic %s with ARN %s.", name, topic["TopicArn"])
+            logger.info("Created topic %s with ARN %s.", name, topic["TopicArn"])
         except ClientError:
-            logging.exception("Couldn't create topic %s.", name)
+            logger.exception("Couldn't create topic %s.", name)
             raise
         else:
             return topic
@@ -39,9 +42,9 @@ class SnsWrapper:
         """
         try:
             topics_iter = self.sns_resource.list_topics()
-            logging.info("Got topics.")
+            logger.info("Got topics.")
         except ClientError:
-            logging.exception("Couldn't get topics.")
+            logger.exception("Couldn't get topics.")
             raise
         else:
             return topics_iter
@@ -65,9 +68,9 @@ class SnsWrapper:
             subscription = client.subscribe(
                 TopicArn=topic,Protocol=protocol, Endpoint=endpoint, ReturnSubscriptionArn=True
             )
-            logging.info("Subscribed %s %s to topic %s.", protocol, endpoint, topic)
+            logger.info("Subscribed %s %s to topic %s.", protocol, endpoint, topic)
         except ClientError:
-            logging.exception(
+            logger.exception(
                 "Couldn't subscribe %s %s to topic %s.", protocol, endpoint, topic
             )
             raise
@@ -102,9 +105,9 @@ class SnsWrapper:
                 MessageStructure="json"
             )
             message_id = response["MessageId"]
-            logging.info("Published multi-format message to topic %s.", topic)
+            logger.info("Published multi-format message to topic %s.", topic)
         except ClientError:
-            logging.exception("Couldn't publish message to topic %s.", topic)
+            logger.exception("Couldn't publish message to topic %s.", topic)
             raise
         else:
             return message_id
@@ -116,9 +119,9 @@ class SnsWrapper:
         """
         try:
             client.delete_topic(TopicArn=topic_arn)
-            logging.info("Deleted topic %s.", topic_arn)
+            logger.info("Deleted topic %s.", topic_arn)
         except ClientError:
-            logging.exception("Couldn't delete topic %s.", topic_arn)
+            logger.exception("Couldn't delete topic %s.", topic_arn)
             raise
         else:
             return topic_arn
