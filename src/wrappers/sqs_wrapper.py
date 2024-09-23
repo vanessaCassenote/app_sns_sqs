@@ -3,6 +3,9 @@
 import logging
 from botocore.exceptions import ClientError
 
+logging.basicConfig(filename="log.log",format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 class SqsWrapper:
     ''' Encapsulates Amazon SQS queues'''
 
@@ -24,9 +27,9 @@ class SqsWrapper:
 
         try:
             queue = self.sqs.create_queue(QueueName=name, Attributes=attributes)
-            logging.info("Created queue '%s' with URL=%s", name, queue["QueueUrl"])
+            logger.info("Created queue '%s' with URL=%s", name, queue["QueueUrl"])
         except ClientError as error:
-            logging.exception("Couldn't create queue named '%s'.", name)
+            logger.exception("Couldn't create queue named '%s'.", name)
             raise error
         else:
             return queue
@@ -47,9 +50,9 @@ class SqsWrapper:
 
         queues = queue_iter["QueueUrls"]
         if queues:
-            logging.info("Got queues: %s", ", ".join([q for q in queues]))
+            logger.info("Got queues: %s", ", ".join([q for q in queues]))
         else:
-            logging.warning("No queues found.")
+            logger.warning("No queues found.")
         return queue_iter
 
     @staticmethod
@@ -71,7 +74,7 @@ class SqsWrapper:
             QueueUrl=queue,MessageBody=message_body, MessageAttributes=message_attributes
             )
         except ClientError as error:
-            logging.exception("Send message failed: %s", message_body)
+            logger.exception("Send message failed: %s", message_body)
             raise error
         else:
             return response
@@ -103,7 +106,7 @@ class SqsWrapper:
                     WaitTimeSeconds=0
                 )
         except ClientError as error:
-            logging.exception("Couldn't receive messages from queue: %s", queue)
+            logger.exception("Couldn't receive messages from queue: %s", queue)
             raise error
         else:
             return messages
@@ -121,9 +124,9 @@ class SqsWrapper:
             response = client.delete_queue(
                 QueueUrl=queue
             )
-            logging.info("Deleted queue with URL=%s.", response)
+            logger.info("Deleted queue with URL=%s.", response)
         except ClientError as error:
-            logging.exception("Couldn't delete queue with URL=%s!", response)
+            logger.exception("Couldn't delete queue with URL=%s!", response)
             raise error
         else:
             return queue
