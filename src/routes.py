@@ -1,7 +1,7 @@
 ''' This file is responsable for creating all endpoints'''
 
 from flask import request
-from src.messages_sender import sns_connection,\
+from src.messages_handler import sns_connection,\
                                 sqs_connection,\
                                 sns_send_message,\
                                 sqs_receive_message,\
